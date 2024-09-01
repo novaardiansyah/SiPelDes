@@ -37,7 +37,7 @@ class ResidentResource extends Resource
             Forms\Components\TextInput::make('nik')
               ->label('NIK')
               ->numeric()
-              ->unique()
+              ->unique(ignoreRecord: true)
               ->required(),
             Forms\Components\TextInput::make('tempat_lahir')
               ->label('Tempat Lahir'),
@@ -97,7 +97,7 @@ class ResidentResource extends Resource
           ->label('Jenis Kelamin')
           ->toggleable(),
         Tables\Columns\TextColumn::make('alamat')
-          ->label('Alamt')
+          ->label('Alamat')
           ->searchable()
           ->toggleable(),
       ])

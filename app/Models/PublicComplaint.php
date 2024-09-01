@@ -8,24 +8,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Resident extends Model
+class PublicComplaint extends Model
 {
   use HasFactory, LogsActivity;
 
   protected $guarded = ['id'];
 
   protected $casts = [
-    'status_perkawinan' => 'boolean',
+    'attachment' => 'array',
   ];
 
   public function getActivitylogOptions(): LogOptions
   {
     return LogOptions::defaults()
-      ->logOnly(['nama', 'nik', 'tempat_lahir', 'tanggal_lahir', 'agama', 'alamat', 'status_perkawinan']);
+      ->logOnly(['description', 'attachment']);
   }
 
-  public function religion(): BelongsTo
+  public function resident(): BelongsTo
   {
-    return $this->belongsTo(Religion::class, 'agama');
+    return $this->belongsTo(Resident::class);
   }
 }
