@@ -105,15 +105,16 @@ class ResidentResource extends Resource
         //
       ])
       ->recordUrl(null)
+      ->recordAction(null)
       ->defaultSort('nama')
       ->actions([
         Tables\Actions\ActionGroup::make([
           Tables\Actions\ViewAction::make()
             ->color('warning'),
-            
+
           Tables\Actions\EditAction::make()
             ->color('primary'),
-          
+
           Tables\Actions\DeleteAction::make(),
 
           ActivityLogTimelineTableAction::make('Activities')

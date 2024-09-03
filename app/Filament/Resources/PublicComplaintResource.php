@@ -20,7 +20,7 @@ class PublicComplaintResource extends Resource
 
   protected static ?string $navigationGroup = 'Menu Utama';
   protected static ?string $navigationIcon = 'heroicon-o-inbox-stack';
-  protected static ?string $modelLabel = 'Pengaduan Masyarakat';
+  protected static ?string $modelLabel = 'Pengaduan';
   protected static ?int $navigationSort = 20;
 
   public static function form(Form $form): Form
