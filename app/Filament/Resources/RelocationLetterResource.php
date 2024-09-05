@@ -22,10 +22,10 @@ class RelocationLetterResource extends Resource
   protected static ?string $model = RelocationLetter::class;
 
   protected static ?string $navigationGroup = 'Kelola Surat';
-  protected static ?string $navigationIcon = 'heroicon-o-document';
+  protected static ?string $navigationIcon = 'heroicon-o-document-text';
   protected static ?string $modelLabel = 'Surat Keterangan Pindah';
   protected static ?string $pluralModelLabel = 'Keterangan Pindah';
-  protected static ?int $navigationSort = 30;
+  protected static ?int $navigationSort = 10;
 
   public static function form(Form $form): Form
   {
@@ -53,7 +53,7 @@ class RelocationLetterResource extends Resource
 
                     $set('tempat_lahir', $tempat_lahir && $tanggal_lahir ? "$tempat_lahir, $tanggal_lahir" : '');
                   })
-                  ->readOnly('edit')
+                  ->readOnlyOn('edit')
                   ->required(),
                 Forms\Components\TextInput::make('nama')
                   ->label('Nama Lengkap')

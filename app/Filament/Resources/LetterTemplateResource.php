@@ -86,6 +86,7 @@ class LetterTemplateResource extends Resource
       ])
       ->defaultSort('judul', 'asc')
       ->recordUrl(null)
+      ->recordAction(null)
       ->filters([
         //
       ])

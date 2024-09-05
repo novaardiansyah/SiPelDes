@@ -1,23 +1,20 @@
 <?php
 
-namespace App\Filament\Resources\RelocationLetterResource\Pages;
+namespace App\Filament\Resources\ResidentLetterResource\Pages;
 
-use App\Filament\Resources\RelocationLetterResource;
-use App\Jobs\RelocationLetterResource\GeneratePdfJob;
+use App\Filament\Resources\ResidentLetterResource;
+use App\Jobs\ResidentLetterResource\GeneratePdfJob;
 use App\Models\LetterTemplate;
-use App\Models\RelocationLetter;
-use App\Models\Resident;
+use App\Models\ResidentLetter;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class EditRelocationLetter extends EditRecord
+class EditResidentLetter extends EditRecord
 {
-  protected static string $resource = RelocationLetterResource::class;
+  protected static string $resource = ResidentLetterResource::class;
 
   protected function getHeaderActions(): array
   {
@@ -26,18 +23,18 @@ class EditRelocationLetter extends EditRecord
         ->label('Download Surat')
         ->color('primary')
         ->icon('heroicon-o-arrow-down-tray')
-        ->visible(function (RelocationLetter $record): bool {
-          return $record->status !== RelocationLetter::PENGAJUAN && Storage::disk('public')->exists($record->file_surat);
+        ->visible(function (ResidentLetter $record): bool {
+          return $record->status !== ResidentLetter::PENGAJUAN && Storage::disk('public')->exists($record->file_surat);
         })
-        ->url(fn(RelocationLetter $record): string => asset('storage/' . $record->file_surat))
+        ->url(fn(ResidentLetter $record): string => asset('storage/' . $record->file_surat))
         ->openUrlInNewTab(),
 
       Actions\Action::make('tolak')
         ->label('Tolak')
         ->color('danger')
-        ->action(function (RelocationLetter $record):void {
+        ->action(function (ResidentLetter $record):void {
           $record->update([
-            'status'     => RelocationLetter::DITOLAK,
+            'status'     => ResidentLetter::DITOLAK,
             'kode_surat' => null,
             'file_surat' => null,
           ]);
@@ -45,21 +42,21 @@ class EditRelocationLetter extends EditRecord
         ->requiresConfirmation()
         ->modalHeading('Tolak Surat Keterangan Pindah')
         ->after(fn() => $this->afterAction(bodyNotification: 'Surat keterangan pindah berhasil ditolak.'))
-        ->visible(fn (RelocationLetter $record): bool => $record->status === RelocationLetter::PENGAJUAN),
+        ->visible(fn (ResidentLetter $record): bool => $record->status === ResidentLetter::PENGAJUAN),
 
       Actions\Action::make('setujui')
         ->label('Setujui')
         ->color('success')
-        ->action(function (RelocationLetter $record):void {
-          $template = LetterTemplate::find(2);
+        ->action(function (ResidentLetter $record):void {
+          $template = LetterTemplate::find(1);
 
           $kode_surat = $template->kode . '/' . now()->translatedFormat('Y-m') . '/' . $template->nomor;
 
           $filename = 'letter-'. str_replace('/', '-', $kode_surat) .'.pdf';
-          $filepath = "pdf/RelocationLetterResource/{$filename}";
+          $filepath = "pdf/ResidentLetterResource/{$filename}";
 
           $record->update([
-            'status'     => RelocationLetter::DISETUJUI,
+            'status'     => ResidentLetter::DISETUJUI,
             'kode_surat' => $kode_surat,
             'file_surat' => $filepath
           ]);
@@ -71,7 +68,7 @@ class EditRelocationLetter extends EditRecord
         ->requiresConfirmation()
         ->after(fn() => $this->afterAction(bodyNotification: 'Notifikasi akan dikirim setelah selesai.', titleNotification: 'Surat segera diproses!'))
         ->modalHeading('Setujui Surat Keterangan Pindah')
-        ->visible(fn (RelocationLetter $record): bool => $record->status === RelocationLetter::PENGAJUAN),
+        ->visible(fn (ResidentLetter $record): bool => $record->status === ResidentLetter::PENGAJUAN),
     ];
   }
 
@@ -101,27 +98,11 @@ class EditRelocationLetter extends EditRecord
 
     $data['nik'] = $record->resident->nik;
     $data['nama'] = $record->resident->nama;
+    $data['jenis_kelamin'] = $record->resident->jenis_kelamin;
+    $data['alamat'] = $record->resident->alamat;
     $data['tempat_lahir'] = $tempat_lahir && $tanggal_lahir ? "$tempat_lahir, $tanggal_lahir" : '';
     $data['diajukan_oleh'] = $record->user->name;
 
-    return $data;
-  }
-
-  protected function mutateFormDataBeforeSave(array $data): array
-  {
-    $resident = Resident::where('nik', $data['nik'])->first();
-    
-    if (!$resident) {
-      Notification::make()
-        ->title('Terjadi kesalahan!')
-        ->body('NIK data penduduk tidak ditemukan atau belum terdaftar.')
-        ->danger()
-        ->send();
-
-      $this->halt();
-    }
-
-    $data['resident_id'] = $resident->id;
     return $data;
   }
 }
