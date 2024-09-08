@@ -52,7 +52,6 @@
     </p>
   </div>
 
-
   <div style="margin-top: 42px; text-align: right;">
     <p style="margin: 0;">Kebonsari, {{ $data['now'] }}</p>
     <p style="margin: 0">a/n Kepala Desa Kebonsari</p>
