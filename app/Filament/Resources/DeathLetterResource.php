@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ResidentLetterResource\Pages;
-use App\Filament\Resources\ResidentLetterResource\RelationManagers;
+use App\Filament\Resources\DeathLetterResource\Pages;
+use App\Filament\Resources\DeathLetterResource\RelationManagers;
+use App\Models\DeathLetter;
+use App\Models\LetterTemplate;
 use App\Models\Resident;
-use App\Models\ResidentLetter;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -16,15 +17,15 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 
-class ResidentLetterResource extends Resource
+class DeathLetterResource extends Resource
 {
-  protected static ?string $model = ResidentLetter::class;
+  protected static ?string $model = DeathLetter::class;
 
   protected static ?string $navigationGroup = 'Kelola Surat';
   protected static ?string $navigationIcon = 'heroicon-o-document-text';
-  protected static ?string $modelLabel = 'Surat Keterangan Penduduk';
-  protected static ?string $pluralModelLabel = 'Keterangan Penduduk';
-  protected static ?int $navigationSort = 20;
+  protected static ?string $modelLabel = 'Surat Keterangan Kematian';
+  protected static ?string $pluralModelLabel = 'Keterangan Kematian';
+  protected static ?int $navigationSort = 40;
 
   public static function form(Form $form): Form
   {
@@ -32,8 +33,8 @@ class ResidentLetterResource extends Resource
       ->schema([
         Forms\Components\Section::make('')
           ->schema([
-            Forms\Components\Section::make('')
-              ->description('Lengkapi formulir surat keterangan pindah')
+            Forms\Components\Section::make()
+              ->description('Lengkapi formulir surat keterangan kematian')
               ->columns(2)
               ->collapsible()
               ->schema([
@@ -47,30 +48,35 @@ class ResidentLetterResource extends Resource
                     $set('nama', $resident?->nama ?? '');
                     $set('alamat', $resident?->alamat ?? '');
                     $set('jenis_kelamin', $resident?->jenis_kelamin ?? '');
-
-                    $tempat_lahir = $resident?->tempat_lahir;
-                    $tanggal_lahir = $resident?->tanggal_lahir ? Carbon::parse($resident->tanggal_lahir)->translatedFormat('d F Y') : '';
-
-                    $set('tempat_lahir', $tempat_lahir && $tanggal_lahir ? "$tempat_lahir, $tanggal_lahir" : '');
                   })
                   ->readOnlyOn('edit')
                   ->required(),
                 Forms\Components\TextInput::make('nama')
                   ->label('Nama Lengkap')
                   ->dehydrated(false)
-                  ->readOnly(),
-                Forms\Components\TextInput::make('tempat_lahir')
-                  ->label('Tempat/Tanggal Lahir')
-                  ->dehydrated(false)
+                  ->required()
                   ->readOnly(),
                 Forms\Components\TextInput::make('jenis_kelamin')
                   ->label('Jenis Kelamin')
                   ->dehydrated(false)
+                  ->required()
                   ->readOnly(),
+                Forms\Components\TextInput::make('tempat_kematian')
+                  ->label('Tempat Kematian')
+                  ->placeholder('Rumah Sakit'),
+                Forms\Components\TextInput::make('penyebab_kematian')
+                  ->label('Penyebab Kematian')
+                  ->placeholder('Sakit'),
+                Forms\Components\DateTimePicker::make('waktu_kematian')
+                  ->label('Waktu Kematian')
+                  ->displayFormat('d M Y H:i')
+                  ->seconds(false)
+                  ->closeOnDateSelection()
+                  ->native(false)
+                  ->default(now()),
                 Forms\Components\Textarea::make('alamat')
                   ->label('Alamat')
                   ->rows(3)
-                  ->required()
                   ->columnSpanFull(),
               ]),
             Forms\Components\Section::make('')
@@ -125,6 +131,21 @@ class ResidentLetterResource extends Resource
           ->searchable()
           ->sortable()
           ->toggleable(),
+        Tables\Columns\TextColumn::make('penyebab_kematian')
+          ->label('Penyebab Kematian')
+          ->searchable()
+          ->sortable()
+          ->toggleable(),
+        Tables\Columns\TextColumn::make('tempat_kematian')
+          ->label('Tempat Kematian')
+          ->searchable()
+          ->sortable()
+          ->toggleable(),
+        Tables\Columns\TextColumn::make('waktu_kematian')
+          ->label('Waktu Kematian')
+          ->dateTime('d M Y H:i')
+          ->sortable()
+          ->toggleable(),
         Tables\Columns\TextColumn::make('status')
           ->label('Status')
           ->sortable()
@@ -132,9 +153,9 @@ class ResidentLetterResource extends Resource
           ->formatStateUsing(fn($state) => strtoupper($state))
           ->color(function ($state): string {
             return match ($state) {
-              ResidentLetter::PENGAJUAN => 'warning',
-              ResidentLetter::DISETUJUI => 'success',
-              ResidentLetter::DITOLAK => 'danger',
+              LetterTemplate::PENGAJUAN => 'warning',
+              LetterTemplate::DISETUJUI => 'success',
+              LetterTemplate::DITOLAK => 'danger',
             };
           })
           ->toggleable(),
@@ -192,9 +213,9 @@ class ResidentLetterResource extends Resource
   public static function getPages(): array
   {
     return [
-      'index' => Pages\ListResidentLetters::route('/'),
-      'create' => Pages\CreateResidentLetter::route('/create'),
-      'edit' => Pages\EditResidentLetter::route('/{record}/edit'),
+      'index' => Pages\ListDeathLetters::route('/'),
+      'create' => Pages\CreateDeathLetter::route('/create'),
+      'edit' => Pages\EditDeathLetter::route('/{record}/edit'),
     ];
   }
 }
