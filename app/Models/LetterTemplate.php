@@ -13,6 +13,10 @@ class LetterTemplate extends Model
 
   protected $guarded = ['id'];
 
+  public const PENGAJUAN = 'pengajuan';
+  public const DISETUJUI = 'disetujui';
+  public const DITOLAK = 'ditolak';
+  
   public function getActivitylogOptions(): LogOptions
   {
     return LogOptions::defaults()
