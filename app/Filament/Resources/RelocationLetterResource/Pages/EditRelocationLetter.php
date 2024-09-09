@@ -27,7 +27,7 @@ class EditRelocationLetter extends EditRecord
         ->color('primary')
         ->icon('heroicon-o-arrow-down-tray')
         ->visible(function (RelocationLetter $record): bool {
-          return $record->status !== RelocationLetter::PENGAJUAN && Storage::disk('public')->exists($record->file_surat);
+          return $record->status !== RelocationLetter::PENGAJUAN && Storage::disk('public')->exists($record->file_surat ?? 'default.pdf');
         })
         ->url(fn(RelocationLetter $record): string => asset('storage/' . $record->file_surat))
         ->openUrlInNewTab(),
@@ -51,7 +51,7 @@ class EditRelocationLetter extends EditRecord
         ->label('Setujui')
         ->color('success')
         ->action(function (RelocationLetter $record):void {
-          $template = LetterTemplate::find(2);
+          $template = LetterTemplate::find(1);
 
           $kode_surat = $template->kode . '/' . now()->translatedFormat('Y-m') . '/' . $template->nomor;
 
