@@ -24,7 +24,7 @@ class EditResidentLetter extends EditRecord
         ->color('primary')
         ->icon('heroicon-o-arrow-down-tray')
         ->visible(function (ResidentLetter $record): bool {
-          return $record->status !== ResidentLetter::PENGAJUAN && Storage::disk('public')->exists($record->file_surat);
+          return $record->status !== ResidentLetter::PENGAJUAN && Storage::disk('public')->exists($record->file_surat ?? 'default.pdf');
         })
         ->url(fn(ResidentLetter $record): string => asset('storage/' . $record->file_surat))
         ->openUrlInNewTab(),
@@ -48,7 +48,7 @@ class EditResidentLetter extends EditRecord
         ->label('Setujui')
         ->color('success')
         ->action(function (ResidentLetter $record):void {
-          $template = LetterTemplate::find(1);
+          $template = LetterTemplate::find(2);
 
           $kode_surat = $template->kode . '/' . now()->translatedFormat('Y-m') . '/' . $template->nomor;
 

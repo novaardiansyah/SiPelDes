@@ -81,6 +81,7 @@ class RelocationLetterResource extends Resource
             Forms\Components\Section::make('')
               ->description('Detail status pengajuan surat')
               ->columns(3)
+              ->visibleOn('edit')
               ->schema([
                 Forms\Components\TextInput::make('status')
                   ->label('Status')
